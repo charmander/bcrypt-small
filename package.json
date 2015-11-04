@@ -1,0 +1,24 @@
+{
+	"name": "bcrypt-small",
+	"version": "1.0.0",
+	"description": "Threaded bcrypt bindings with a small API.",
+	"keywords": ["bcrypt", "password"],
+	"homepage": "https://github.com/charmander/bcrypt-small",
+	"bugs": {
+		"url": "https://github.com/charmander/bcrypt-small/issues"
+	},
+	"license": "ISC",
+	"files": ["bcrypt.js", "binding.gyp", "src/"],
+	"main": "bcrypt",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/charmander/bcrypt-small"
+	},
+	"scripts": {
+		"test": "tap test"
+	},
+	"devDependencies": {
+		"bluebird": "3.0.5",
+		"tap": "2.2.0"
+	}
+}

@@ -32,62 +32,27 @@
  */
 
 #include <sys/types.h>
-#include <blf.h>
 #include <ctype.h>
 #include <errno.h>
-#include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "blf.h"
+#include "bcrypt.h"
+#include "openbsd-string.h"
 
 /* This implementation is adaptable to current computing power.
  * You can have up to 2^31 rounds which should be enough for some
  * time to come.
  */
 
-#define BCRYPT_VERSION '2'
-#define BCRYPT_MAXSALT 16	/* Precomputation is just so nice */
-#define BCRYPT_WORDS 6		/* Ciphertext words */
-#define BCRYPT_MINLOGROUNDS 4	/* we have log2(rounds) in salt */
-
-#define	BCRYPT_SALTSPACE	(7 + (BCRYPT_MAXSALT * 4 + 2) / 3 + 1)
-#define	BCRYPT_HASHSPACE	61
-
-char   *bcrypt_gensalt(u_int8_t);
-
 static int encode_base64(char *, const u_int8_t *, size_t);
 static int decode_base64(u_int8_t *, size_t, const char *);
 
 /*
- * Generates a salt for this version of crypt.
- */
-static int
-bcrypt_initsalt(int log_rounds, uint8_t *salt, size_t saltbuflen)
-{
-	uint8_t csalt[BCRYPT_MAXSALT];
-
-	if (saltbuflen < BCRYPT_SALTSPACE) {
-		errno = EINVAL;
-		return -1;
-	}
-
-	arc4random_buf(csalt, sizeof(csalt));
-
-	if (log_rounds < 4)
-		log_rounds = 4;
-	else if (log_rounds > 31)
-		log_rounds = 31;
-
-	snprintf(salt, saltbuflen, "$2b$%2.2u$", log_rounds);
-	encode_base64(salt + 7, csalt, sizeof(csalt));
-
-	return 0;
-}
-
-/*
  * the core bcrypt function
  */
-static int
+int
 bcrypt_hashpass(const char *key, const char *salt, char *encrypted,
     size_t encryptedlen)
 {
@@ -199,75 +164,6 @@ inval:
 }
 
 /*
- * user friendly functions
- */
-int
-bcrypt_newhash(const char *pass, int log_rounds, char *hash, size_t hashlen)
-{
-	char salt[BCRYPT_SALTSPACE];
-
-	if (bcrypt_initsalt(log_rounds, salt, sizeof(salt)) != 0)
-		return -1;
-
-	if (bcrypt_hashpass(pass, salt, hash, hashlen) != 0)
-		return -1;
-
-	explicit_bzero(salt, sizeof(salt));
-	return 0;
-}
-
-int
-bcrypt_checkpass(const char *pass, const char *goodhash)
-{
-	char hash[BCRYPT_HASHSPACE];
-
-	if (bcrypt_hashpass(pass, goodhash, hash, sizeof(hash)) != 0)
-		return -1;
-	if (strlen(hash) != strlen(goodhash) ||
-	    timingsafe_bcmp(hash, goodhash, strlen(goodhash)) != 0) {
-		errno = EACCES;
-		return -1;
-	}
-
-	explicit_bzero(hash, sizeof(hash));
-	return 0;
-}
-
-/*
- * Measure this system's performance by measuring the time for 8 rounds.
- * We are aiming for something that takes around 0.1s, but not too much over.
- */
-int
-bcrypt_autorounds(void)
-{
-	struct timespec before, after;
-	int r = 8;
-	char buf[_PASSWORD_LEN];
-	int duration;
-
-	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &before);
-	bcrypt_newhash("testpassword", r, buf, sizeof(buf));
-	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &after);
-
-	duration = after.tv_sec - before.tv_sec;
-	duration *= 1000000;
-	duration += (after.tv_nsec - before.tv_nsec) / 1000;
-
-	/* too quick? slow it down. */
-	while (r < 16 && duration <= 60000) {
-		r += 1;
-		duration *= 2;
-	}
-	/* too slow? speed it up. */
-	while (r > 4 && duration > 120000) {
-		r -= 1;
-		duration /= 2;
-	}
-
-	return r;
-}
-
-/*
  * internal utilities
  */
 static const u_int8_t Base64Code[] =
@@ -366,28 +262,4 @@ encode_base64(char *b64buffer, const u_int8_t *data, size_t len)
 	}
 	*bp = '\0';
 	return 0;
-}
-
-/*
- * classic interface
- */
-char *
-bcrypt_gensalt(u_int8_t log_rounds)
-{
-	static char    gsalt[BCRYPT_SALTSPACE];
-
-	bcrypt_initsalt(log_rounds, gsalt, sizeof(gsalt));
-
-	return gsalt;
-}
-
-char *
-bcrypt(const char *pass, const char *salt)
-{
-	static char    gencrypted[BCRYPT_HASHSPACE];
-
-	if (bcrypt_hashpass(pass, salt, gencrypted, sizeof(gencrypted)) != 0)
-		return NULL;
-
-	return gencrypted;
 }

@@ -1,0 +1,9 @@
+language: node_js
+node_js:
+    - "5.0"
+    - "4.1"
+    - "4.0"
+env:
+    - CXX=clang++
+script: node_modules/tap/bin/run.js test
+sudo: false
