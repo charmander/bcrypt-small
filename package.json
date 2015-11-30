@@ -19,6 +19,6 @@
 	},
 	"devDependencies": {
 		"bluebird": "3.0.5",
-		"tap": "2.2.0"
+		"tap": "2.3.1"
 	}
 }

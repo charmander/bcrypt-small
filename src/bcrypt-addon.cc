@@ -84,7 +84,7 @@ namespace {
 		v8::Local<v8::String> salt = args[1]->ToString(isolate);
 		v8::Local<v8::Function> callback = v8::Local<v8::Function>::Cast(args[2]);
 
-		struct HashWork* work = new HashWork();
+		HashWork* work = new HashWork();
 		work->password = strdup(*v8::String::Utf8Value(password));
 		work->salt = strdup(*v8::String::Utf8Value(salt));
 		work->callback.Reset(isolate, callback);
