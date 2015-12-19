@@ -135,7 +135,7 @@ function compare(password, expectedHash, callback) {
 
 function getRounds(hash) {
 	if (typeof hash !== 'string') {
-		throw new Error('hash must be a string');
+		throw new Error('Hash must be a string');
 	}
 
 	var match = BCRYPT_ROUNDS.exec(hash);
