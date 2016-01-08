@@ -50,34 +50,6 @@ function bcryptBase64(bytes) {
 	return result;
 }
 
-function utf8ByteCount(string) {
-	var count = 0;
-
-	for (var i = 0, l = string.length; i < l; i++) {
-		var c = string.charCodeAt(i);
-
-		if (c < 0x0080) {
-			count += 1;
-		} else if (c < 0x0800) {
-			count += 2;
-		} else if (c < 0xd800 || c >= 0xe000) {
-			count += 3;
-		} else {
-			var n;
-
-			if (c < 0xdc00 && i + 1 < l && (n = string.charCodeAt(i + 1)) >= 0xdc00 && n < 0xe000) {
-				count += 4;
-				i++;
-			} else {
-				// U+FFFD REPLACEMENT CHARACTER is 3 bytes of UTF-8
-				count += 3;
-			}
-		}
-	}
-
-	return count;
-}
-
 function padLogRounds(logRounds) {
 	return logRounds < 10 ? '0' + logRounds : '' + logRounds;
 }
@@ -99,7 +71,7 @@ function hash(password, logRounds, callback) {
 		throw new TypeError('Callback must be a function');
 	}
 
-	if (utf8ByteCount(password) > 72) {
+	if (Buffer.byteLength(password, 'utf8') > 72) {
 		process.nextTick(callback, new Error('Password cannot be longer than 72 bytes'));
 		return;
 	}
