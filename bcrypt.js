@@ -64,7 +64,7 @@ function hash(password, logRounds, callback) {
 	}
 
 	if (logRounds < 4 || logRounds > 31) {
-		throw new Error('logRounds must be at least 4 and at most 31');
+		throw new RangeError('logRounds must be at least 4 and at most 31');
 	}
 
 	if (typeof callback !== 'function') {
@@ -107,7 +107,7 @@ function compare(password, expectedHash, callback) {
 
 function getRounds(hash) {
 	if (typeof hash !== 'string') {
-		throw new Error('Hash must be a string');
+		throw new TypeError('Hash must be a string');
 	}
 
 	var match = BCRYPT_ROUNDS.exec(hash);
