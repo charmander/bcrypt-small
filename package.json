@@ -1,6 +1,6 @@
 {
 	"name": "bcrypt-small",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Threaded bcrypt bindings with a small API.",
 	"keywords": ["bcrypt", "password"],
 	"homepage": "https://github.com/charmander/bcrypt-small",
@@ -15,10 +15,10 @@
 		"url": "https://github.com/charmander/bcrypt-small"
 	},
 	"scripts": {
-		"test": "tap test"
+		"test": "node_modules/tap/bin/run.js test"
 	},
 	"devDependencies": {
-		"bluebird": "3.1.1",
-		"tap": "5.0.0"
+		"bluebird": "3.3.5",
+		"tap": "5.7.1"
 	}
 }
