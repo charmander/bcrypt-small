@@ -17,8 +17,8 @@ namespace {
 		int error;
 	};
 
-	void hash_password(uv_work_t* request) {
-		HashWork* work = static_cast<HashWork*>(request->data);
+	void hash_password(uv_work_t* const request) {
+		HashWork* const work = static_cast<HashWork*>(request->data);
 
 		work->error = bcrypt_hashpass(work->password, work->salt, work->hash, BCRYPT_HASHSPACE) != 0;
 
@@ -28,10 +28,10 @@ namespace {
 		free(work->salt);
 	}
 
-	void hash_password_done(uv_work_t* request, int status) {
-		HashWork* work = static_cast<HashWork*>(request->data);
+	void hash_password_done(uv_work_t* const request, int const status) {
+		HashWork* const work = static_cast<HashWork*>(request->data);
 
-		v8::Isolate* isolate = v8::Isolate::GetCurrent();
+		v8::Isolate* const isolate = v8::Isolate::GetCurrent();
 		v8::HandleScope scope(isolate);
 
 		v8::Local<v8::Value> callback_args[2];
@@ -53,8 +53,8 @@ namespace {
 		delete work;
 	}
 
-	void hash_password_async(const v8::FunctionCallbackInfo<v8::Value>& args) {
-		v8::Isolate* isolate = args.GetIsolate();
+	void hash_password_async(v8::FunctionCallbackInfo<v8::Value> const& args) {
+		v8::Isolate* const isolate = args.GetIsolate();
 
 		if (args.Length() != 3) {
 			isolate->ThrowException(v8::Exception::TypeError(
@@ -80,17 +80,17 @@ namespace {
 			return;
 		}
 
-		v8::Local<v8::String> password = args[0]->ToString(isolate);
-		v8::Local<v8::String> salt = args[1]->ToString(isolate);
-		v8::Local<v8::Function> callback = v8::Local<v8::Function>::Cast(args[2]);
+		v8::Local<v8::String> const password = args[0]->ToString(isolate);
+		v8::Local<v8::String> const salt = args[1]->ToString(isolate);
+		v8::Local<v8::Function> const callback = v8::Local<v8::Function>::Cast(args[2]);
 
-		HashWork* work = new HashWork();
+		HashWork* const work = new HashWork();
 		work->password = strdup(*v8::String::Utf8Value(password));
 		work->salt = strdup(*v8::String::Utf8Value(salt));
 		work->callback.Reset(isolate, callback);
 		work->hash = new char[BCRYPT_HASHSPACE];
 
-		uv_work_t* request = new uv_work_t();
+		uv_work_t* const request = new uv_work_t();
 		request->data = work;
 
 		uv_queue_work(
