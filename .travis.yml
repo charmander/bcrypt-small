@@ -1,8 +1,7 @@
 language: node_js
 node_js:
-    - "5.4"
-    - "4.1"
-    - "4.0"
+    - "5.10"
+    - "4.4"
 env:
     - CXX=clang++
 script: node_modules/tap/bin/run.js test
