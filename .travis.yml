@@ -1,7 +1,7 @@
 language: node_js
 node_js:
-    - "6"
+  - "6"
 env:
-    - CC=clang CXX=clang++
+  - CC=clang CXX=clang++
 script: node_modules/tap/bin/run.js test
 sudo: false
