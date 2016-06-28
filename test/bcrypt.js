@@ -11,14 +11,14 @@ var bcrypt = require('../');
 var hashAsync = Bluebird.promisify(bcrypt.hash);
 var compareAsync = Bluebird.promisify(bcrypt.compare);
 
-var FIXED_RANDOM_BYTES = new Buffer([1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 128, 0, 16]);
+var FIXED_RANDOM_BYTES = Buffer.from([1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 128, 0, 16]);
 
 function withFixedRandom(f) {
 	var crypto = require('crypto');
 	var _randomBytes = crypto.randomBytes;
 
 	crypto.randomBytes = function randomBytes(n) {
-		if (n !== 16) {
+		if (n !== FIXED_RANDOM_BYTES.length) {
 			crypto.randomBytes = _randomBytes;
 			tap.bailout('An unexpected number of random bytes was requested');
 			return _randomBytes(n);

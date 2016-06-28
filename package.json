@@ -18,7 +18,7 @@
 		"test": "node_modules/tap/bin/run.js test"
 	},
 	"devDependencies": {
-		"bluebird": "3.3.5",
-		"tap": "5.7.1"
+		"bluebird": "3.4.1",
+		"tap": "5.8.0"
 	}
 }
