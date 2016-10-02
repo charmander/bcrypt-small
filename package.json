@@ -8,8 +8,7 @@
 		"url": "https://github.com/charmander/bcrypt-small/issues"
 	},
 	"license": "ISC",
-	"files": ["bcrypt.js", "binding.gyp", "src/"],
-	"main": "bcrypt",
+	"files": ["index.js", "binding.gyp", "src/"],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/charmander/bcrypt-small"
