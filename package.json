@@ -14,7 +14,7 @@
 		"url": "https://github.com/charmander/bcrypt-small"
 	},
 	"scripts": {
-		"test": "node_modules/tap/bin/run.js test"
+		"test": "tap test"
 	},
 	"devDependencies": {
 		"bluebird": "3.4.1",
