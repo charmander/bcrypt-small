@@ -72,12 +72,12 @@ function hash(password, logRounds, callback) {
 	}
 
 	if (Buffer.byteLength(password, 'utf8') > 72) {
-		process.nextTick(callback, new Error('Password cannot be longer than 72 bytes'));
+		process.nextTick(callback, new RangeError('Password cannot be longer than 72 UTF-8 bytes'));
 		return;
 	}
 
 	if (password.indexOf('\0') !== -1) {
-		process.nextTick(callback, new Error('Password cannot contain null bytes'));
+		process.nextTick(callback, new Error('Password cannot contain null characters'));
 		return;
 	}
 

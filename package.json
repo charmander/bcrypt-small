@@ -1,6 +1,6 @@
 {
 	"name": "bcrypt-small",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "Threaded bcrypt bindings with a small API.",
 	"keywords": ["bcrypt", "password"],
 	"homepage": "https://github.com/charmander/bcrypt-small",
