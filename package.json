@@ -17,7 +17,7 @@
 		"test": "tap test"
 	},
 	"devDependencies": {
-		"bluebird": "3.4.6",
-		"tap": "7.1.2"
+		"bluebird": "3.4.7",
+		"tap": "9.0.3"
 	}
 }

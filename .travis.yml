@@ -1,6 +1,7 @@
 language: node_js
 node_js:
   - "6"
+  - "7"
 env:
   - CC=clang CXX=clang++
 script: node_modules/.bin/tap test
