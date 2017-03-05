@@ -60,6 +60,9 @@ tap.test('Valid hashes should compare correctly', function (t) {
 		compareAsync('dEe6XfVGrrfSH', '$2b$04$2Siw3Nv3Q/gTOIPetAyPr.GNj3aO0lb1E5E9UumYGKjP9BYqlNWJe'),
 		compareAsync('cTT0EAFdwJiLn', '$2b$04$7/Qj7Kd8BcSahPO4khB8me4ssDJCW3r4OGYqPF87jxtrSyPj5cS5m'),
 		compareAsync('J8eHUDuxBB520', '$2b$04$VvlCUKbTMjaxaYJ.k5juoecpG/7IzcH1AkmqKi.lIZMVIOLClWAk.'),
+		compareAsync('bad',           '$2b$04$oahK9cRD70runDCHDv0guePBLj1bXnkhJsLE8RsxbIj/KTrjGTaTC'),
+		compareAsync(repeat('x', 72), '$2b$04$reNliC3NXTL4gRd0vpEDNuSIvBhc.ELFskR71Dp5m15rUZAYSiU2y'),
+		compareAsync(repeat('☃', 24), '$2b$04$eOi5Nnq3eFy9AyqQAKrFjOnaMtfXlcgH8qoRkCZ8zLACP.C9FuNEu'),
 	]).then(function (results) {
 		t.ok(results.every(Boolean));
 	});
@@ -130,6 +133,27 @@ tap.test('Invalid passwords should produce hashing errors', function (t) {
 		hashFails('bad\0'),
 		hashFails(repeat('x', 73)),
 		hashFails(repeat('☃', 24) + 'x'),
+	]).then(function (results) {
+		t.ok(results.every(Boolean));
+	});
+});
+
+tap.test('Invalid passwords should produce comparison errors', function (t) {
+	function compareFails(password, hash) {
+		return compareAsync(password, hash).then(
+			function () {
+				return false;
+			},
+			function () {
+				return true;
+			}
+		);
+	}
+
+	return Bluebird.all([
+		compareFails('bad\0', '$2b$04$oahK9cRD70runDCHDv0guePBLj1bXnkhJsLE8RsxbIj/KTrjGTaTC'),
+		compareFails(repeat('x', 73), '$2b$04$reNliC3NXTL4gRd0vpEDNuSIvBhc.ELFskR71Dp5m15rUZAYSiU2y'),
+		compareFails(repeat('☃', 24) + 'x', '$2b$04$eOi5Nnq3eFy9AyqQAKrFjOnaMtfXlcgH8qoRkCZ8zLACP.C9FuNEu'),
 	]).then(function (results) {
 		t.ok(results.every(Boolean));
 	});
