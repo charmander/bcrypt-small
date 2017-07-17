@@ -1,6 +1,6 @@
 {
 	"name": "bcrypt-small",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"description": "Threaded bcrypt bindings with a small API.",
 	"keywords": ["bcrypt", "password"],
 	"homepage": "https://github.com/charmander/bcrypt-small",
@@ -19,5 +19,8 @@
 	"devDependencies": {
 		"bluebird": "3.5.0",
 		"tap": "10.3.0"
+	},
+	"engines": {
+		"node": ">=4.0.0"
 	}
 }
