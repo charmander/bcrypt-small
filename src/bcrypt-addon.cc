@@ -1,7 +1,6 @@
 #include <node.h>
 #include <uv.h>
 #include <cstring>
-#include <cstdlib>
 
 extern "C" {
 	#include "openbsd-string.h"
@@ -9,12 +8,16 @@ extern "C" {
 }
 
 namespace {
-	struct HashWork {
+	size_t constexpr BCRYPT_MAX_KEY_LENGTH = 72;
+	size_t constexpr BCRYPT_SALT_LENGTH = 29;
+
+	class HashWork {
+	public:
 		v8::Persistent<v8::Function> callback;
-		char* password;
-		char* salt;
-		char* hash;
-		int error;
+		bool error;
+		char password[BCRYPT_MAX_KEY_LENGTH + 1];
+		char salt[BCRYPT_SALT_LENGTH + 1];
+		char hash[BCRYPT_HASHSPACE];
 	};
 
 	void hash_password(uv_work_t* const request) {
@@ -22,10 +25,8 @@ namespace {
 
 		work->error = bcrypt_hashpass(work->password, work->salt, work->hash, BCRYPT_HASHSPACE) != 0;
 
-		explicit_bzero(work->password, strlen(work->password));
-		explicit_bzero(work->salt, strlen(work->salt));
-		free(work->password);
-		free(work->salt);
+		explicit_bzero(work->password, sizeof work->password);
+		explicit_bzero(work->salt, sizeof work->salt);
 	}
 
 	void hash_password_done(uv_work_t* const request, int const status) {
@@ -49,7 +50,8 @@ namespace {
 			->Call(isolate->GetCurrentContext()->Global(), 2, callback_args);
 
 		work->callback.Reset();
-		delete[] work->hash;
+
+		explicit_bzero(work->hash, BCRYPT_HASHSPACE);
 		delete work;
 		delete request;
 	}
@@ -86,10 +88,11 @@ namespace {
 		v8::Local<v8::Function> const callback = v8::Local<v8::Function>::Cast(args[2]);
 
 		HashWork* const work = new HashWork();
-		work->password = strdup(*v8::String::Utf8Value(password));
-		work->salt = strdup(*v8::String::Utf8Value(salt));
 		work->callback.Reset(isolate, callback);
-		work->hash = new char[BCRYPT_HASHSPACE];
+		strncpy(work->password, *v8::String::Utf8Value(password), sizeof work->password - 1);
+		work->password[sizeof work->password - 1] = '\0';
+		strncpy(work->salt, *v8::String::Utf8Value(salt), sizeof work->salt - 1);
+		work->salt[sizeof work->salt - 1] = '\0';
 
 		uv_work_t* const request = new uv_work_t();
 		request->data = work;
