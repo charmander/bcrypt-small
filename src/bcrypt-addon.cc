@@ -51,6 +51,7 @@ namespace {
 		work->callback.Reset();
 		delete[] work->hash;
 		delete work;
+		delete request;
 	}
 
 	void hash_password_async(v8::FunctionCallbackInfo<v8::Value> const& args) {
