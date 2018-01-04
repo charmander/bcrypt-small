@@ -17,4 +17,3 @@ before_script:
   - npm install --no-package-lock
 script:
   - node_modules/.bin/tap test
-sudo: false
