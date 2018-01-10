@@ -103,8 +103,6 @@ namespace {
 			hash_password,
 			hash_password_done
 		);
-
-		args.GetReturnValue().Set(v8::Undefined(isolate));
 	}
 
 	void init(v8::Local<v8::Object> exports) {
