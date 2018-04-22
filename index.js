@@ -72,12 +72,12 @@ function hash(password, logRounds, callback) {
 	}
 
 	if (Buffer.byteLength(password, 'utf8') > 72) {
-		process.nextTick(callback, new RangeError('Password cannot be longer than 72 UTF-8 bytes'));
+		process.nextTick(callback, new RangeError('Password cannot be longer than 72 UTF-8 bytes'), undefined);
 		return;
 	}
 
 	if (password.indexOf('\0') !== -1) {
-		process.nextTick(callback, new Error('Password cannot contain null characters'));
+		process.nextTick(callback, new Error('Password cannot contain null characters'), undefined);
 		return;
 	}
 
@@ -97,18 +97,18 @@ function compare(password, expectedHash, callback) {
 	}
 
 	if (Buffer.byteLength(password, 'utf8') > 72) {
-		process.nextTick(callback, new RangeError('Password cannot be longer than 72 UTF-8 bytes'));
+		process.nextTick(callback, new RangeError('Password cannot be longer than 72 UTF-8 bytes'), undefined);
 		return;
 	}
 
 	if (password.indexOf('\0') !== -1) {
-		process.nextTick(callback, new Error('Password cannot contain null characters'));
+		process.nextTick(callback, new Error('Password cannot contain null characters'), undefined);
 		return;
 	}
 
 	binding.hashPasswordAsync(password, expectedHash, function (error, hash) {
 		if (error) {
-			callback(error);
+			callback(error, undefined);
 		} else {
 			callback(null, expectedHash === hash);
 		}
