@@ -8,9 +8,28 @@ const assert = require('assert');
 const Bluebird = require('bluebird');
 const test = require('@charmander/test')(module);
 
+const promisifyWithoutCatch = func => (...args) => {
+	let resolve;
+	let reject;
+	const promise = new Bluebird((resolve_, reject_) => {
+		resolve = resolve_;
+		reject = reject_;
+	});
+
+	func(...args, (error, result) => {
+		if (error) {
+			reject(error);
+		} else {
+			resolve(result);
+		}
+	});
+
+	return promise;
+};
+
 const bcrypt = require('./');
-const hashAsync = Bluebird.promisify(bcrypt.hash);
-const compareAsync = Bluebird.promisify(bcrypt.compare);
+const hashAsync = promisifyWithoutCatch(bcrypt.hash);
+const compareAsync = promisifyWithoutCatch(bcrypt.compare);
 
 const FIXED_RANDOM_BYTES = Buffer.from([1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 128, 0, 16]);
 
@@ -158,10 +177,59 @@ test('Valid passwords hash correctly', () =>
 	})
 );
 
+test('Single-digit round counts hash correctly', () =>
+	withFixedRandom(() =>
+		hashAsync('good', 4)
+	).then(hash => {
+		assert.deepStrictEqual(hash, '$2b$04$.OCA.uSGBPSgLzkO4W..C.y0.pMwCQWP9oSqISDvhUrtY9287gVyC');
+	})
+);
+
+test('Incorrect parameter types result in errors at the time of the call', () => {
+	assert.throws(() => {
+		bcrypt.hash(null, 4, () => {});
+	}, /^TypeError: Password must be a string$/);
+
+	assert.throws(() => {
+		bcrypt.hash('a', 4.5, () => {});
+	}, /^TypeError: logRounds must be an integer$/);
+
+	assert.throws(() => {
+		bcrypt.hash('a', 3, () => {});
+	}, /^RangeError: logRounds must be at least 4 and at most 31$/);
+
+	assert.throws(() => {
+		bcrypt.hash('a', 32, () => {});
+	}, /^RangeError: logRounds must be at least 4 and at most 31$/);
+
+	assert.throws(() => {
+		bcrypt.hash('a', 4, null);
+	}, /^TypeError: Callback must be a function$/);
+
+	assert.throws(() => {
+		bcrypt.compare(null, 'b', () => {});
+	}, /^TypeError: Password must be a string$/);
+
+	assert.throws(() => {
+		bcrypt.compare('a', null, () => {});
+	}, /^TypeError: Hash must be a string$/);
+
+	assert.throws(() => {
+		bcrypt.compare('a', 'b', null);
+	}, /^TypeError: Callback must be a function$/);
+
+	assert.throws(() => {
+		bcrypt.getRounds(null);
+	}, /^TypeError: Hash must be a string$/);
+});
+
 test('Rounds are extracted correctly', () => {
 	assert.strictEqual(bcrypt.getRounds('$2b$10$.OCA.uSGBPSgLzkO4W..C.bECUq4XHEv2q4q/Ez0YjVJ4zi9PN6UW'), 10);
 	assert.strictEqual(bcrypt.getRounds('$2b$04$cVWp4XaNU8a4v1uMRum2SO026BWLIoQMD/TXg5uZV.0P.uO8m3YEm'), 4);
 	assert.throws(() => {
 		bcrypt.getRounds('$2z$10$.OCA.uSGBPSgLzkO4W..C.bECUq4XHEv2q4q/Ez0YjVJ4zi9PN6UW');
+	}, /^Error: Invalid hash$/);
+	assert.throws(() => {
+		bcrypt.getRounds('$2b$4$.OCA.uSGBPSgLzkO4W..C.bECUq4XHEv2q4q/Ez0YjVJ4zi9PN6UW');
 	}, /^Error: Invalid hash$/);
 });

@@ -85,6 +85,10 @@ const compare = (password, expectedHash, callback) => {
 		throw new TypeError('Hash must be a string');
 	}
 
+	if (typeof callback !== 'function') {
+		throw new TypeError('Callback must be a function');
+	}
+
 	if (Buffer.byteLength(password, 'utf8') > 72) {
 		process.nextTick(callback, new RangeError('Password cannot be longer than 72 UTF-8 bytes'), undefined);
 		return;
