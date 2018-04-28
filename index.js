@@ -24,20 +24,17 @@ const bcryptBase64 = bytes => {
 			BCRYPT_BASE64.charAt(b2 & 0x3f);
 	}
 
-	if (i + 1 === l) {
+	/* istanbul ignore next: unreachable */
+	if (i + 1 !== l) {
+		throw new Error('Unexpected salt length');
+	}
+
+	{
 		const b0 = bytes[i];
 
 		result +=
 			BCRYPT_BASE64.charAt(b0 >> 2) +
 			BCRYPT_BASE64.charAt((b0 & 0x03) << 4);
-	} else if (i + 2 === l) {
-		const b0 = bytes[i];
-		const b1 = bytes[i + 1];
-
-		result +=
-			BCRYPT_BASE64.charAt(b0 >> 2) +
-			BCRYPT_BASE64.charAt(((b0 & 0x03) << 4) | (b1 >> 4)) +
-			BCRYPT_BASE64.charAt((b1 & 0x0f) << 2);
 	}
 
 	return result;
