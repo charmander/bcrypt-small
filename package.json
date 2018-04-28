@@ -24,12 +24,12 @@
 		"url": "https://github.com/charmander/bcrypt-small"
 	},
 	"scripts": {
-		"test": "tap test"
+		"test": "node test"
 	},
 	"devDependencies": {
 		"@charmander/eslint-config-base": "1.1.0",
-		"bluebird": "3.5.1",
-		"tap": "10.7.2"
+		"@charmander/test": "0.2.0",
+		"bluebird": "3.5.1"
 	},
 	"engines": {
 		"node": ">=6.0.0"
