@@ -4,20 +4,20 @@
 
 'use strict';
 
-var Bluebird = require('bluebird');
-var tap = require('tap');
+const Bluebird = require('bluebird');
+const tap = require('tap');
 
-var bcrypt = require('../');
-var hashAsync = Bluebird.promisify(bcrypt.hash);
-var compareAsync = Bluebird.promisify(bcrypt.compare);
+const bcrypt = require('../');
+const hashAsync = Bluebird.promisify(bcrypt.hash);
+const compareAsync = Bluebird.promisify(bcrypt.compare);
 
-var FIXED_RANDOM_BYTES = Buffer.from([1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 128, 0, 16]);
+const FIXED_RANDOM_BYTES = Buffer.from([1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 128, 0, 16]);
 
-function withFixedRandom(f) {
-	var crypto = require('crypto');
-	var _randomBytes = crypto.randomBytes;
+const withFixedRandom = f => {
+	const crypto = require('crypto');
+	const _randomBytes = crypto.randomBytes;
 
-	crypto.randomBytes = function randomBytes(n) {
+	crypto.randomBytes = n => {
 		if (n !== FIXED_RANDOM_BYTES.length) {
 			crypto.randomBytes = _randomBytes;
 			tap.bailout('An unexpected number of random bytes was requested');
@@ -27,19 +27,15 @@ function withFixedRandom(f) {
 		return FIXED_RANDOM_BYTES;
 	};
 
-	var result = f();
+	const result = f();
 
 	crypto.randomBytes = _randomBytes;
 
 	return result;
-}
+};
 
-function repeat(s, n) {
-	return new Array(n + 1).join(s);
-}
-
-tap.test('Valid hashes should compare correctly', function (t) {
-	var correct = Bluebird.all([
+tap.test('Valid hashes should compare correctly', t => {
+	const correct = Bluebird.all([
 		compareAsync('Kk4DQuMMfZL9o', '$2b$04$cVWp4XaNU8a4v1uMRum2SO026BWLIoQMD/TXg5uZV.0P.uO8m3YEm'),
 		compareAsync('9IeRXmnGxMYbs', '$2b$04$pQ7gRO7e6wx/936oXhNjrOUNOHL1D0h1N2IDbJZYs.1ppzSof6SPy'),
 		compareAsync('xVQVbwa1S0M8r', '$2b$04$SQe9knOzepOVKoYXo9xTteNYr6MBwVz4tpriJVe3PNgYufGIsgKcW'),
@@ -61,13 +57,13 @@ tap.test('Valid hashes should compare correctly', function (t) {
 		compareAsync('cTT0EAFdwJiLn', '$2b$04$7/Qj7Kd8BcSahPO4khB8me4ssDJCW3r4OGYqPF87jxtrSyPj5cS5m'),
 		compareAsync('J8eHUDuxBB520', '$2b$04$VvlCUKbTMjaxaYJ.k5juoecpG/7IzcH1AkmqKi.lIZMVIOLClWAk.'),
 		compareAsync('bad',           '$2b$04$oahK9cRD70runDCHDv0guePBLj1bXnkhJsLE8RsxbIj/KTrjGTaTC'),
-		compareAsync(repeat('x', 72), '$2b$04$reNliC3NXTL4gRd0vpEDNuSIvBhc.ELFskR71Dp5m15rUZAYSiU2y'),
-		compareAsync(repeat('☃', 24), '$2b$04$eOi5Nnq3eFy9AyqQAKrFjOnaMtfXlcgH8qoRkCZ8zLACP.C9FuNEu'),
-	]).then(function (results) {
+		compareAsync('x'.repeat(72),  '$2b$04$reNliC3NXTL4gRd0vpEDNuSIvBhc.ELFskR71Dp5m15rUZAYSiU2y'),
+		compareAsync('☃'.repeat(24),  '$2b$04$eOi5Nnq3eFy9AyqQAKrFjOnaMtfXlcgH8qoRkCZ8zLACP.C9FuNEu'),
+	]).then(results => {
 		t.ok(results.every(Boolean));
 	});
 
-	var incorrect = Bluebird.all([
+	const incorrect = Bluebird.all([
 		compareAsync('Kk4DQuMMfZL9o',        '$2b$04$cVWp4XaNU8a4v1uMRum2SO026BWLIoQMD/TXg5uZV.0P.uO8m3YEq'),
 		compareAsync('9IeRXmnGxMYbs',        '$2b$04$pQ7gRO7e6Ax/936oXhNjrOUNOHL1D0h1N2IDbJZYs.1ppzSof6SPy'),
 		compareAsync('xVQVbwa1S0M8s',        '$2b$04$SQe9knOzepOVKoYXo9xTteNYr6MBwVz4tpriJVe3PNgYufGIsgKcW'),
@@ -88,99 +84,84 @@ tap.test('Valid hashes should compare correctly', function (t) {
 		compareAsync(',m5zBk<K"5z',          '$2b$04$2Siw3Nv3Q/gTOIPetAyPr.GNj3aO0lb1E5E9UumYGKjP9BYqlNWJe'),
 		compareAsync('m_c<NXBg3OMXmzx[',     '$2b$04$7/Qj7Kd8BcSahPO4khB8me4ssDJCW3r4OGYqPF87jxtrSyPj5cS5m'),
 		compareAsync('C?{/@`RkZlQ4)01ga9~',  '$2b$04$VvlCUKbTMjaxaYJ.k5juoecpG/7IzcH1AkmqKi.lIZMVIOLClWAk.'),
-	]).then(function (results) {
+	]).then(results => {
 		t.ok(!results.some(Boolean));
 	});
 
 	return Bluebird.all([correct, incorrect]);
 });
 
-tap.test('Invalid hashes should produce comparison errors', function (t) {
-	function compareFails(password, hash) {
-		return compareAsync(password, hash).then(
-			function () {
-				return false;
-			},
-			function () {
-				return true;
-			}
+tap.test('Invalid hashes should produce comparison errors', t => {
+	const compareFails = (password, hash) =>
+		compareAsync(password, hash).then(
+			() => false,
+			() => true
 		);
-	}
 
 	return Bluebird.all([
 		compareFails('password', '$2z$04$cVWp4XaNU8a4v1uMRum2SO'),
 		compareFails('password', '$2b$04$cVWp4XaNU8a4v1uMRum2S'),
 		compareFails('password', ''),
 		compareFails('password', ':'),
-	]).then(function (results) {
+	]).then(results => {
 		t.ok(results.every(Boolean));
 	});
 });
 
-tap.test('Invalid passwords should produce hashing errors', function (t) {
-	function hashFails(password) {
-		return hashAsync(password, 10).then(
-			function () {
-				return false;
-			},
-			function () {
-				return true;
-			}
+tap.test('Invalid passwords should produce hashing errors', t => {
+	const hashFails = password =>
+		hashAsync(password, 10).then(
+			() => false,
+			() => true
 		);
-	}
 
 	return Bluebird.all([
 		hashFails('bad\0'),
-		hashFails(repeat('x', 73)),
-		hashFails(repeat('☃', 24) + 'x'),
-	]).then(function (results) {
+		hashFails('x'.repeat(73)),
+		hashFails('☃'.repeat(24) + 'x'),
+	]).then(results => {
 		t.ok(results.every(Boolean));
 	});
 });
 
-tap.test('Invalid passwords should produce comparison errors', function (t) {
-	function compareFails(password, hash) {
-		return compareAsync(password, hash).then(
-			function () {
-				return false;
-			},
-			function () {
-				return true;
-			}
+tap.test('Invalid passwords should produce comparison errors', t => {
+	const compareFails = (password, hash) =>
+		compareAsync(password, hash).then(
+			() => false,
+			() => true
 		);
-	}
 
 	return Bluebird.all([
 		compareFails('bad\0', '$2b$04$oahK9cRD70runDCHDv0guePBLj1bXnkhJsLE8RsxbIj/KTrjGTaTC'),
-		compareFails(repeat('x', 73), '$2b$04$reNliC3NXTL4gRd0vpEDNuSIvBhc.ELFskR71Dp5m15rUZAYSiU2y'),
-		compareFails(repeat('☃', 24) + 'x', '$2b$04$eOi5Nnq3eFy9AyqQAKrFjOnaMtfXlcgH8qoRkCZ8zLACP.C9FuNEu'),
-	]).then(function (results) {
+		compareFails('x'.repeat(73), '$2b$04$reNliC3NXTL4gRd0vpEDNuSIvBhc.ELFskR71Dp5m15rUZAYSiU2y'),
+		compareFails('☃'.repeat(24) + 'x', '$2b$04$eOi5Nnq3eFy9AyqQAKrFjOnaMtfXlcgH8qoRkCZ8zLACP.C9FuNEu'),
+	]).then(results => {
 		t.ok(results.every(Boolean));
 	});
 });
 
-tap.test('Valid passwords should hash correctly', function (t) {
-	return Bluebird.all(
-		withFixedRandom(function () {
-			return [
+tap.test('Valid passwords should hash correctly', t =>
+	Bluebird.all(
+		withFixedRandom(() =>
+			[
 				hashAsync('good', 10),
-				hashAsync(repeat('x', 72), 10),
-				hashAsync(repeat('☃', 24), 10),
-			];
-		})
-	).then(function (results) {
+				hashAsync('x'.repeat(72), 10),
+				hashAsync('☃'.repeat(24), 10),
+			]
+		)
+	).then(results => {
 		t.strictSame(results, [
 			'$2b$10$.OCA.uSGBPSgLzkO4W..C.bECUq4XHEv2q4q/Ez0YjVJ4zi9PN6UW',
 			'$2b$10$.OCA.uSGBPSgLzkO4W..C.spnIjx92N76s/MBKwhVtjc4mJqFs1wq',
 			'$2b$10$.OCA.uSGBPSgLzkO4W..C.ZoNOX6xIlYCjIQ7jr5gCMdszV5RPN7q',
 		]);
-	});
-});
+	})
+);
 
-tap.test('Rounds should be extracted correctly', function (t) {
+tap.test('Rounds should be extracted correctly', t => {
 	t.equal(bcrypt.getRounds('$2b$10$.OCA.uSGBPSgLzkO4W..C.bECUq4XHEv2q4q/Ez0YjVJ4zi9PN6UW'), 10);
 	t.equal(bcrypt.getRounds('$2b$04$cVWp4XaNU8a4v1uMRum2SO026BWLIoQMD/TXg5uZV.0P.uO8m3YEm'), 4);
-	t.throws(function () {
+	t.throws(() => {
 		bcrypt.getRounds('$2z$10$.OCA.uSGBPSgLzkO4W..C.bECUq4XHEv2q4q/Ez0YjVJ4zi9PN6UW');
 	});
 	t.end();

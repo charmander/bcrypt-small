@@ -12,19 +12,19 @@ no longer than 72 bytes; an error is produced if these conditions are not met.
 ## Example
 
 ```javascript
-var bcrypt = require('bcrypt-small');
+const bcrypt = require('bcrypt-small');
 
-bcrypt.hash('password', 10, function (error, hash) {
+bcrypt.hash('password', 12, (error, hash) => {
 	if (error) {
 		console.error(error);
 		return;
 	}
 
-	bcrypt.compare('password', hash, function (error, result) {
+	bcrypt.compare('password', hash, (error, result) => {
 		console.log(result); // true
 	});
 
-	bcrypt.compare('not password', hash, function (error, result) {
+	bcrypt.compare('not password', hash, (error, result) => {
 		console.log(result); // false
 	});
 });
