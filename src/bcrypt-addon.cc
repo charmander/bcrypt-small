@@ -89,9 +89,9 @@ namespace {
 
 		HashWork* const work = new HashWork();
 		work->callback.Reset(isolate, callback);
-		strncpy(work->password, *v8::String::Utf8Value(password), sizeof work->password - 1);
+		strncpy(work->password, *v8::String::Utf8Value(isolate, password), sizeof work->password - 1);
 		work->password[sizeof work->password - 1] = '\0';
-		strncpy(work->salt, *v8::String::Utf8Value(salt), sizeof work->salt - 1);
+		strncpy(work->salt, *v8::String::Utf8Value(isolate, salt), sizeof work->salt - 1);
 		work->salt[sizeof work->salt - 1] = '\0';
 
 		uv_work_t* const request = new uv_work_t();
