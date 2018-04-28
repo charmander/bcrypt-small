@@ -1,2 +1,4 @@
-build
-src
+.nyc_output/
+build/
+coverage/
+src/
