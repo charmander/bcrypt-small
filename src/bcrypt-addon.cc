@@ -40,7 +40,7 @@ namespace {
 		if (work->error) {
 			callback_args[0] = v8::Exception::Error(
 				v8::String::NewFromUtf8(isolate, "bcrypt failed"));
-			callback_args[1] = v8::Null(isolate);
+			callback_args[1] = v8::Undefined(isolate);
 		} else {
 			callback_args[0] = v8::Null(isolate);
 			callback_args[1] = v8::String::NewFromUtf8(isolate, work->hash);
