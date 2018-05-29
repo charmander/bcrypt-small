@@ -1,6 +1,6 @@
 {
 	"name": "bcrypt-small",
-	"version": "3.0.0",
+	"version": "3.1.0",
 	"description": "Threaded bcrypt bindings with a small API.",
 	"keywords": [
 		"bcrypt",
@@ -13,6 +13,7 @@
 	"license": "ISC",
 	"files": [
 		"index.js",
+		"promises.js",
 		"binding.gyp",
 		"src/bcrypt-addon.cc",
 		"src/bcrypt.c",
@@ -31,8 +32,7 @@
 	},
 	"devDependencies": {
 		"@charmander/eslint-config-base": "1.1.0",
-		"@charmander/test": "0.2.0",
-		"bluebird": "3.5.1"
+		"@charmander/test": "0.2.0"
 	},
 	"engines": {
 		"node": ">=6.0.0"
