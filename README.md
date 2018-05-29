@@ -28,7 +28,7 @@ bcrypt.hash('password', 12, (error, hash) => {
 		console.log(result); // false
 	});
 
-	console.log(bcrypt.getRounds(hash));  // 12
+	console.log(bcrypt.getRounds(hash)); // 12
 });
 ```
 
@@ -40,9 +40,9 @@ const bcrypt = require('bcrypt-small/promises');
 (async () => {
 	const hash = await bcrypt.hash('password', 12);
 
-	console.log(await bcrypt.compare('password', hash));  // true
-	console.log(await bcrypt.compare('not password', hash));  // false
-	console.log(bcrypt.getRounds(hash));  // 12
+	console.log(await bcrypt.compare('password', hash)); // true
+	console.log(await bcrypt.compare('not password', hash)); // false
+	console.log(bcrypt.getRounds(hash)); // 12
 })();
 ```
 
