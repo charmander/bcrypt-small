@@ -27,7 +27,23 @@ bcrypt.hash('password', 12, (error, hash) => {
 	bcrypt.compare('not password', hash, (error, result) => {
 		console.log(result); // false
 	});
+
+	console.log(bcrypt.getRounds(hash)); // 12
 });
+```
+
+Functions returning built-in promises are provided by `bcrypt-small/promises`:
+
+```javascript
+const bcrypt = require('bcrypt-small/promises');
+
+(async () => {
+	const hash = await bcrypt.hash('password', 12);
+
+	console.log(await bcrypt.compare('password', hash)); // true
+	console.log(await bcrypt.compare('not password', hash)); // false
+	console.log(bcrypt.getRounds(hash)); // 12
+})();
 ```
 
 
