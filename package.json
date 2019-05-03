@@ -1,6 +1,6 @@
 {
 	"name": "bcrypt-small",
-	"version": "3.1.1",
+	"version": "4.0.0",
 	"description": "Threaded bcrypt bindings with a small API.",
 	"keywords": [
 		"bcrypt",
@@ -15,7 +15,7 @@
 		"index.js",
 		"promises.js",
 		"binding.gyp",
-		"src/bcrypt-addon.cc",
+		"src/bcrypt-addon.c",
 		"src/bcrypt.c",
 		"src/bcrypt.h",
 		"src/blf.h",
@@ -35,6 +35,6 @@
 		"@charmander/test": "0.2.0"
 	},
 	"engines": {
-		"node": ">=8.10.0"
+		"node": ">=8.11.2"
 	}
 }

@@ -73,7 +73,7 @@ const hash = (password, logRounds, callback) => {
 	const saltBytes = crypto.randomBytes(16);
 	const salt = BCRYPT_PREFIX + padLogRounds(logRounds) + '$' + bcryptBase64(saltBytes);
 
-	binding.hashPasswordAsync(password, salt, callback);
+	binding(password, salt, callback);
 };
 
 const compare = (password, expectedHash, callback) => {
@@ -99,7 +99,7 @@ const compare = (password, expectedHash, callback) => {
 		return;
 	}
 
-	binding.hashPasswordAsync(password, expectedHash, (error, hash) => {
+	binding(password, expectedHash, (error, hash) => {
 		if (error) {
 			callback(error, undefined);
 		} else {
