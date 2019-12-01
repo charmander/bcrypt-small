@@ -1,7 +1,5 @@
 # bcrypt-small
 
-[![Build status][ci-image]][ci]
-
 bcrypt-small provides functions to asynchronously create and verify password
 hashes.
 
@@ -64,7 +62,3 @@ Compares a password to a hash. The callback receives two arguments:
 ### bcrypt.getRounds(hash)
 
 Returns the number of rounds used to produce the given hash.
-
-
-  [ci]: https://travis-ci.org/charmander/bcrypt-small
-  [ci-image]: https://api.travis-ci.org/charmander/bcrypt-small.svg
