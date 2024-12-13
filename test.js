@@ -5,7 +5,7 @@
 'use strict';
 
 const assert = require('assert');
-const test = require('@charmander/test')(module);
+const {test} = require('node:test');
 
 const bcrypt = require('./');
 const promises = require('./promises');
