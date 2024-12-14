@@ -1,7 +1,9 @@
-'use strict';
+import {Buffer} from 'node:buffer';
+import * as crypto from 'node:crypto';
+import {createRequire} from 'node:module';
 
-const binding = require('./build/Release/bcrypt');
-const crypto = require('crypto');
+const require = createRequire(import.meta.url);
+const binding = require('./build/Release/bcrypt.node');
 
 const BCRYPT_PREFIX = '$2b$';
 const BCRYPT_BASE64 = './ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -43,7 +45,7 @@ const bcryptBase64 = bytes => {
 const padLogRounds = logRounds =>
 	logRounds < 10 ? '0' + logRounds : '' + logRounds;
 
-const hash = (password, logRounds, callback) => {
+export const hash = (password, logRounds) => {
 	if (typeof password !== 'string') {
 		throw new TypeError('Password must be a string');
 	}
@@ -56,27 +58,29 @@ const hash = (password, logRounds, callback) => {
 		throw new RangeError('logRounds must be at least 4 and at most 31');
 	}
 
-	if (typeof callback !== 'function') {
-		throw new TypeError('Callback must be a function');
-	}
-
 	if (Buffer.byteLength(password, 'utf8') > 72) {
-		process.nextTick(callback, new RangeError('Password cannot be longer than 72 UTF-8 bytes'), undefined);
-		return;
+		return Promise.reject(new RangeError(`Password cannot be longer than 72 UTF-8 bytes`));
 	}
 
 	if (password.includes('\0')) {
-		process.nextTick(callback, new Error('Password cannot contain null characters'), undefined);
-		return;
+		return Promise.reject(new Error('Password cannot contain null characters'));
 	}
 
 	const saltBytes = crypto.randomBytes(16);
 	const salt = BCRYPT_PREFIX + padLogRounds(logRounds) + '$' + bcryptBase64(saltBytes);
 
-	binding(password, salt, callback);
+	return new Promise((resolve, reject) => {
+		binding(password, salt, (error, hash) => {
+			if (error) {
+				reject(error);
+			} else {
+				resolve(hash);
+			}
+		});
+	});
 };
 
-const compare = (password, expectedHash, callback) => {
+export const compare = (password, expectedHash) => {
 	if (typeof password !== 'string') {
 		throw new TypeError('Password must be a string');
 	}
@@ -85,30 +89,26 @@ const compare = (password, expectedHash, callback) => {
 		throw new TypeError('Hash must be a string');
 	}
 
-	if (typeof callback !== 'function') {
-		throw new TypeError('Callback must be a function');
-	}
-
 	if (Buffer.byteLength(password, 'utf8') > 72) {
-		process.nextTick(callback, new RangeError('Password cannot be longer than 72 UTF-8 bytes'), undefined);
-		return;
+		return Promise.reject(new RangeError(`Password cannot be longer than 72 UTF-8 bytes`));
 	}
 
-	if (password.indexOf('\0') !== -1) {
-		process.nextTick(callback, new Error('Password cannot contain null characters'), undefined);
-		return;
+	if (password.includes('\0')) {
+		return Promise.reject(new Error('Password cannot contain null characters'));
 	}
 
-	binding(password, expectedHash, (error, hash) => {
-		if (error) {
-			callback(error, undefined);
-		} else {
-			callback(null, expectedHash === hash);
-		}
+	return new Promise((resolve, reject) => {
+		binding(password, expectedHash, (error, hash) => {
+			if (error) {
+				reject(error);
+			} else {
+				resolve(expectedHash === hash);
+			}
+		});
 	});
 };
 
-const getRounds = hash => {
+export const getRounds = hash => {
 	if (typeof hash !== 'string') {
 		throw new TypeError('Hash must be a string');
 	}
@@ -120,10 +120,4 @@ const getRounds = hash => {
 	} else {
 		throw new Error('Invalid hash');
 	}
-};
-
-module.exports = {
-	hash,
-	compare,
-	getRounds,
 };

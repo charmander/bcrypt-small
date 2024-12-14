@@ -10,54 +10,33 @@ no longer than 72 bytes; an error is produced if these conditions are not met.
 ## Example
 
 ```javascript
-const bcrypt = require('bcrypt-small');
+import * as bcrypt from 'bcrypt-small';
 
-bcrypt.hash('password', 12, (error, hash) => {
-	if (error) {
-		console.error(error);
-		return;
-	}
+const hash = await bcrypt.hash('password', 12);
 
-	bcrypt.compare('password', hash, (error, result) => {
-		console.log(result); // true
-	});
+await bcrypt.compare('password', hash)
+// true
 
-	bcrypt.compare('not password', hash, (error, result) => {
-		console.log(result); // false
-	});
+await bcrypt.compare('not password', hash)
+// false
 
-	console.log(bcrypt.getRounds(hash)); // 12
-});
-```
-
-Functions returning built-in promises are provided by `bcrypt-small/promises`:
-
-```javascript
-const bcrypt = require('bcrypt-small/promises');
-
-(async () => {
-	const hash = await bcrypt.hash('password', 12);
-
-	console.log(await bcrypt.compare('password', hash)); // true
-	console.log(await bcrypt.compare('not password', hash)); // false
-	console.log(bcrypt.getRounds(hash)); // 12
-})();
+bcrypt.getRounds(hash)
+// 12
 ```
 
 
 ## API
 
-### bcrypt.hash(password, logRounds, callback)
+### bcrypt.hash(password, logRounds)
 
-Hashes a password using 2\*\*`logRounds` rounds. The callback receives two
-arguments: `(error, hash)`, where `hash` is a 60-character string. `logRounds`
-should be at least 4 and at most 31. Aim for 0.1 seconds per hash or more.
+Hashes a password using 2\*\*`logRounds` rounds, returning a promise. The hash
+is a 60-character string. `logRounds` should be at least 4 and at most 31. Aim
+for 0.1 seconds per hash or more.
 
-### bcrypt.compare(password, expectedHash, callback)
+### bcrypt.compare(password, expectedHash)
 
-Compares a password to a hash. The callback receives two arguments:
-`(error, result)`, where `result` is `true` if the password matches the hash and
-`false` if it does not.
+Compares a password to a hash, returning a promise that resolves to `true` if
+the password matches the hash and `false` if it does not.
 
 ### bcrypt.getRounds(hash)
 

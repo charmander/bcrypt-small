@@ -11,9 +11,11 @@
 		"url": "https://github.com/charmander/bcrypt-small/issues"
 	},
 	"license": "ISC",
+	"exports": {
+		".": "./index.mjs"
+	},
 	"files": [
-		"index.js",
-		"promises.js",
+		"index.mjs",
 		"binding.gyp",
 		"src/bcrypt-addon.c",
 		"src/bcrypt.c",
@@ -28,7 +30,7 @@
 		"url": "https://github.com/charmander/bcrypt-small"
 	},
 	"scripts": {
-		"test": "node test"
+		"test": "node test.mjs"
 	},
 	"engines": {
 		"node": ">=18.0.0 || ^16.17.0"
